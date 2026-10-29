@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Katamino Family, solved · Gagne ton papa !, résolu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+/*BASE_CSS*/
+:root{--good:63,138,90;--good-solid:#3f8a5a;--ok:#3f8a5a;--focus:#2b4fa3;--spine:#2e1e10}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--good:108,196,140;--good-solid:#6cc48c;--ok:#6cc48c;--focus:#8fb0ff;--spine:#f3e6d0}}
+:root[data-theme="dark"]{--good:108,196,140;--good-solid:#6cc48c;--ok:#6cc48c;--focus:#8fb0ff;--spine:#f3e6d0}
+html,body{height:auto}
+.topbar{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+.topbar .in{max-width:1000px;margin:0 auto;padding:10px 20px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center}
+.brand{font-weight:800;font-size:1.05rem;color:var(--ink);text-decoration:none;margin-right:auto}
+.brand span{background:var(--box);color:#2e1e10;border-radius:5px;padding:0 6px;margin-right:6px}
+.topbar nav{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0;font-size:.95rem}
+.topbar nav a{color:var(--muted);text-decoration:none;padding:2px 0;border-bottom:2px solid transparent}
+.topbar nav a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--box)}
+.view{display:none}.view.on{display:block}
+.view>.wrap{padding-top:34px}
+.wrap nav{display:none}
+a{color:var(--ink);text-underline-offset:3px}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.tray{background:var(--box);border-radius:14px;padding:16px;margin:26px 0 8px;overflow-x:auto}
+.tray svg{display:block;width:100%;min-width:560px;height:auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:22px}
+.card{display:block;background:var(--panel);border-radius:12px;padding:16px 18px;text-decoration:none;color:var(--ink)}
+.card b{display:block;font-size:1.12rem;margin-bottom:4px}
+.card span{color:var(--muted);font-size:.95rem}
+.card:hover{outline:2px solid var(--box)}
+/* controls shared by play and explorer */
+.ctl{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;margin:18px 0}
+.ctl .grp{display:flex;flex-direction:column;gap:5px}
+.ctl .lbl{font-size:.82rem;color:var(--muted);font-weight:600}
+.seg{display:inline-flex;flex-wrap:wrap;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden}
+.seg button{font:inherit;font-size:.9rem;background:none;color:var(--ink);border:0;padding:5px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.go{font:inherit;font-weight:700;font-size:1rem;padding:10px 26px;border-radius:999px;border:0;background:var(--box);color:#2e1e10;cursor:pointer}
+input[type=text],select{font:inherit;font-size:.95rem;padding:5px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink)}
+/* play */
+.deal{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-top:20px}
+.hand{background:var(--panel);border-radius:14px;padding:18px 20px}
+.hand h3{margin:0 0 2px;font-size:1.2rem}
+.hand .sub{color:var(--muted);font-size:.92rem;margin-bottom:14px}
+.pieces{display:flex;flex-wrap:wrap;gap:16px 20px;align-items:flex-end;margin:6px 0 16px}
+.pieces figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:700;font-size:.9rem}
+.board{margin:4px 0 10px}
+.hand details{margin-top:10px;font-size:.92rem}
+.hand summary{cursor:pointer;color:var(--muted)}
+.hand details svg{margin-top:10px}
+.pool{margin-top:22px;padding:14px 18px;border:1.5px dashed var(--line);border-radius:12px}
+.pool .pieces{margin:10px 0 4px}
+.note{color:var(--muted);font-size:.9rem}
+.warn{color:var(--bad);font-weight:600}
+.tiers{font-size:.85rem;color:var(--muted);margin-top:6px}
+/* explorer */
+#v-explore .list{display:flex;flex-direction:column;gap:2px}
+#v-explore .row{display:grid;grid-template-columns:72px 1fr auto;gap:16px;align-items:center;padding:10px 12px;border-radius:10px;cursor:pointer;border:0;background:none;color:inherit;font:inherit;text-align:left;width:100%}
+#v-explore .row:hover,#v-explore .row[aria-expanded="true"]{background:var(--panel)}
+#v-explore .chips{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+#v-explore .chip{display:inline-flex;align-items:center;gap:4px;font-weight:600;font-size:.88rem;padding:1px 7px 1px 3px;border-radius:6px;border:1px solid var(--line)}
+#v-explore .chip i{width:12px;height:12px;border-radius:3px;display:inline-block;border:1px solid rgba(0,0,0,.25)}
+#v-explore .meta{text-align:right;font-size:.9rem;white-space:nowrap}
+#v-explore .meta b{font-size:1.15rem}
+#v-explore .status{display:block;font-size:.82rem}
+#v-explore .status.ok{color:var(--ok)} #v-explore .status.bad{color:var(--bad)}
+#v-explore .detail{padding:6px 12px 22px 100px;background:var(--panel);border-radius:0 0 10px 10px;margin-top:-4px}
+#v-explore .ladder{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
+#v-explore .ladder .col{min-width:150px}
+#v-explore .ladder h4{margin:8px 0 6px;font-size:.92rem;font-weight:600;color:var(--muted)}
+#v-explore .step{display:flex;justify-content:space-between;gap:12px;font:inherit;font-size:.88rem;width:100%;background:none;border:0;color:var(--ink);padding:2px 6px;border-radius:5px;cursor:pointer}
+#v-explore .step:hover,#v-explore .step[aria-pressed="true"]{background:var(--bg)}
+#v-explore .step.dead{color:var(--bad);font-weight:600}
+#v-explore .viewer{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap;margin:14px 0 6px}
+#v-explore .viewer .vt{font-size:.92rem;max-width:34ch}
+#v-explore .more{font:inherit;margin:18px auto 0;display:block;padding:8px 20px;border-radius:999px;border:1.5px solid var(--ink);background:none;color:var(--ink);cursor:pointer}
+#v-explore .nochips{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.92rem}
+.pentorder .sp{fill:var(--spine)} .pentorder .ex{fill:var(--box)}
+.pentorder text{fill:var(--ink);font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:13px}
+.pentorder .gl{font-weight:700;font-size:14px}.pentorder .gs{fill:var(--muted);font-size:12px}
+.pentorder svg{display:block;width:100%;max-width:680px;height:auto}
+code{font-size:.92em;background:var(--panel);padding:1px 5px;border-radius:4px}
+pre{background:var(--panel);padding:12px 16px;border-radius:10px;overflow-x:auto;font-size:.88rem}
+@media (max-width:640px){#v-explore .row{grid-template-columns:52px 1fr}#v-explore .meta{grid-column:2;text-align:left}#v-explore .detail{padding-left:12px}}
+[hidden]{display:none!important}
+:root[data-lang="fr"] [lang="en"]:not(html),:root:not([data-lang="fr"]) [lang="fr"]:not(html){display:none!important}
+.langsw button{padding:3px 10px;font-weight:600}
+/*VIEW_CSS*/
+</style>
+</head>
+<body>
+<header class="topbar"><div class="in">
+  <a class="brand" href="#home"><span>K</span><b lang="en">Katamino Family, solved</b><b lang="fr">Gagne ton papa !, résolu</b></a>
+  <nav aria-label="Sections">
+    <a href="#play"><span lang="en">Play</span><span lang="fr">Jouer</span></a>
+    <a href="#sets"><span lang="en">Safe sets</span><span lang="fr">Départs sûrs</span></a>
+    <a href="#explore"><span lang="en">Explorer</span><span lang="fr">Explorateur</span></a>
+    <a href="#locks"><span lang="en">Locks</span><span lang="fr">Blocages</span></a>
+    <a href="#growth"><span lang="en">Difficulty</span><span lang="fr">Difficulté</span></a>
+    <a href="#full"><span lang="en">Full set</span><span lang="fr">Jeu complet</span></a>
+    <a href="#naming"><span lang="en">Naming</span><span lang="fr">Noms</span></a>
+    <a href="#method"><span lang="en">Method</span><span lang="fr">Méthode</span></a>
+  </nav>
+  <div class="seg langsw" id="lang" role="group" aria-label="Language / Langue"><button data-v="en" aria-pressed="true">EN</button><button data-v="fr" aria-pressed="false">FR</button></div>
+</div></header>
+
+<main>
+<section class="view" id="v-home"><div class="wrap">
+  <div lang="en">
+  <h1>Katamino Family, solved</h1>
+  <p class="lede">An exhaustive search of Gigamic’s Katamino Family (in French, <i>Gagne ton papa !</i>): every starting set, every order of added pentominoes, every solution counted.</p>
+  </div>
+  <div lang="fr">
+  <h1>Gagne ton papa !, résolu</h1>
+  <p class="lede">Une recherche exhaustive sur <i>Gagne ton papa !</i> de Gigamic (Katamino Family en anglais) : toutes les combinaisons de départ, tous les ordres d’ajout des pentaminos, toutes les solutions comptées.</p>
+  </div>
+  <div class="tray"><svg id="tray"></svg></div>
+  <p class="caption" lang="en">The box, as read from the tray: 7 pentominoes (2–8), 5 tetrominoes (A–E), 2 trominoes (X, Y), two dominoes W and two monominoes V. The doubles let two players play at once; a single starting set uses each piece at most once.</p>
+  <p class="caption" lang="fr">La boîte, telle que lue sur le plateau : 7 pentaminos (2 à 8), 5 tétraminos (A à E), 2 triominos (X, Y), deux dominos W et deux monominos V. Les doublons permettent de jouer à deux en même temps ; une combinaison de départ utilise chaque pièce au plus une fois.</p>
+  <div class="keyfacts" id="homefacts"></div>
+  <div class="cards">
+    <a class="card" href="#play"><b lang="en">Play</b><b lang="fr">Jouer</b><span lang="en">Draw a random starting set of the difficulty you want, or a pair of sets two players can use at the same time.</span><span lang="fr">Tirez une combinaison de départ au hasard selon la difficulté voulue, ou deux combinaisons jouables en même temps par deux joueurs.</span></a>
+    <a class="card" href="#sets"><b lang="en">Safe sets</b><b lang="fr">Départs sûrs</b><span lang="en">All 903 starting sets that stay solvable whatever pentominoes are added, each shown as one solution.</span><span lang="fr">Les 903 combinaisons qui restent solubles quels que soient les pentaminos ajoutés, chacune montrée par une solution.</span></a>
+    <a class="card" href="#explore"><b lang="en">Explorer</b><b lang="fr">Explorateur</b><span lang="en">Every solvable starting set, with the full ladder of additions and a solution for each step.</span><span lang="fr">Toutes les combinaisons solubles, avec l’échelle complète des ajouts et une solution pour chaque étape.</span></a>
+    <a class="card" href="#locks"><b lang="en">Locks</b><b lang="fr">Blocages</b><span lang="en">Which starting pieces and which pentominoes lead to dead ends.</span><span lang="fr">Quelles pièces de départ et quels pentaminos mènent à une impasse.</span></a>
+    <a class="card" href="#growth"><b lang="en">Difficulty</b><b lang="fr">Difficulté</b><span lang="en">How each added pentomino changes the number of solutions.</span><span lang="fr">Comment chaque pentamino ajouté change le nombre de solutions.</span></a>
+    <a class="card" href="#full"><b lang="en">Full set</b><b lang="fr">Jeu complet</b><span lang="en">What happens if the five missing pentominoes are 3D-printed and added.</span><span lang="fr">Ce qui se passe si l’on imprime en 3D et ajoute les cinq pentaminos manquants.</span></a>
+    <a class="card" href="#naming"><b lang="en">Naming</b><b lang="fr">Noms</b><span lang="en">The logic behind the numbers and letters printed on the pieces.</span><span lang="fr">La logique des chiffres et des lettres imprimés sur les pièces.</span></a>
+    <a class="card" href="#method"><b lang="en">Method</b><b lang="fr">Méthode</b><span lang="en">Rules, assumptions, the solver and how to reproduce everything.</span><span lang="fr">Règles, hypothèses, le solveur et comment tout reproduire.</span></a>
+  </div>
+</div></section>
+
+<section class="view" id="v-play"><div class="wrap">
+  <div lang="en">
+  <h1>Draw a starting set</h1>
+  <p class="lede">Pick a difficulty and the site deals a starting set from those that never lock: whichever pentominoes are added afterwards, in any order, the rectangle stays solvable.</p>
+  <p>Difficulty is the number of solutions of the starting rectangle, split into four bands of about equal size within each rectangle size (sets with the same count always share a band): <b>Easy</b> is the quarter with the most solutions, <b>Expert</b> the quarter with the fewest.</p>
+  </div>
+  <div lang="fr">
+  <h1>Tirer une combinaison de départ</h1>
+  <p class="lede">Choisissez une difficulté et le site distribue une combinaison parmi celles qui ne se bloquent jamais : quels que soient les pentaminos ajoutés ensuite, dans n’importe quel ordre, le rectangle reste soluble.</p>
+  <p>La difficulté se mesure au nombre de solutions du rectangle de départ, réparti en quatre tranches de taille à peu près égale pour chaque taille de rectangle (les combinaisons au même nombre de solutions sont toujours dans la même tranche) : <b>Facile</b> est le quart qui a le plus de solutions, <b>Expert</b> le quart qui en a le moins.</p>
+  </div>
+  <div class="ctl">
+    <div class="grp"><span class="lbl"><span lang="en">Mode</span><span lang="fr">Mode</span></span><div class="seg" id="pMode"><button data-v="solo" aria-pressed="true"><span lang="en">One player</span><span lang="fr">Un joueur</span></button><button data-v="pair"><span lang="en">Two players</span><span lang="fr">Deux joueurs</span></button></div></div>
+    <div class="grp"><span class="lbl"><span lang="en">Pieces</span><span lang="fr">Pièces</span></span><div class="seg" id="pPool"><button data-v="box" aria-pressed="true"><span lang="en">Box as sold</span><span lang="fr">Boîte d’origine</span></button><button data-v="extras"><span lang="en">With printed 1, 9, 10, 12</span><span lang="fr">Avec 1, 9, 10, 12 imprimés</span></button></div></div>
+    <div class="grp"><span class="lbl"><span lang="en">Start</span><span lang="fr">Départ</span></span><div class="seg" id="pRect"><button data-v="any" aria-pressed="true"><span lang="en">Any</span><span lang="fr">Indifférent</span></button><button data-v="3">3×5</button><button data-v="4">4×5</button></div></div>
+  </div>
+  <div class="ctl">
+    <div class="grp"><span class="lbl" id="pD1l"></span><div class="seg" id="pD1"><button data-v="0"><span lang="en">Easy</span><span lang="fr">Facile</span></button><button data-v="1" aria-pressed="true"><span lang="en">Medium</span><span lang="fr">Moyen</span></button><button data-v="2"><span lang="en">Hard</span><span lang="fr">Difficile</span></button><button data-v="3">Expert</button></div></div>
+    <div class="grp" id="pD2g" hidden><span class="lbl"><span lang="en">Player 2 difficulty</span><span lang="fr">Difficulté du joueur 2</span></span><div class="seg" id="pD2"><button data-v="0" aria-pressed="true"><span lang="en">Easy</span><span lang="fr">Facile</span></button><button data-v="1"><span lang="en">Medium</span><span lang="fr">Moyen</span></button><button data-v="2"><span lang="en">Hard</span><span lang="fr">Difficile</span></button><button data-v="3">Expert</button></div></div>
+    <div class="grp" id="pAddg" hidden><span class="lbl"><span lang="en">Pentominoes to add, each</span><span lang="fr">Pentaminos à ajouter, chacun</span></span><div class="seg" id="pAdd"><button data-v="0"><span lang="en">Any</span><span lang="fr">Indifférent</span></button><button data-v="1" aria-pressed="true">1</button><button data-v="2">2</button><button data-v="3">3</button></div></div>
+    <button class="go" id="pGo"><span lang="en">Deal</span><span lang="fr">Distribuer</span></button>
+  </div>
+  <div class="tiers" id="pTiers"></div>
+  <div id="pOut" aria-live="polite"></div>
+</div></section>
+
+<section class="view" id="v-explore"><div class="wrap">
+  <h1 lang="en">Explorer</h1><h1 lang="fr">Explorateur</h1>
+  <p class="lede" lang="en">Every starting set that fills its rectangle (box as sold). Open one to see each possible addition, its number of solutions, and one solution for any step.</p>
+  <p class="lede" lang="fr">Toutes les combinaisons de départ qui remplissent leur rectangle (boîte d’origine). Ouvrez-en une pour voir chaque ajout possible, son nombre de solutions et une solution pour chaque étape.</p>
+  <div class="ctl">
+    <div class="seg" id="xH"><button data-v="all" aria-pressed="true"><span lang="en">All</span><span lang="fr">Tous</span></button><button data-v="3">3×5</button><button data-v="4">4×5</button></div>
+    <div class="seg" id="xN"><button data-v="all" aria-pressed="true"><span lang="en">5 or 6 pieces</span><span lang="fr">5 ou 6 pièces</span></button><button data-v="5">5</button><button data-v="6">6</button></div>
+    <div class="seg" id="xS"><button data-v="all" aria-pressed="true"><span lang="en">All paths</span><span lang="fr">Tous</span></button><button data-v="ok"><span lang="en">Never lock</span><span lang="fr">Jamais bloquées</span></button><button data-v="bad"><span lang="en">Has a dead end</span><span lang="fr">Avec impasse</span></button></div>
+    <label class="note"><span lang="en">Contains</span><span lang="fr">Contient</span> <input type="text" id="xQ" placeholder="7AV" autocomplete="off" size="8"></label>
+    <label class="note"><span lang="en">Sort</span><span lang="fr">Tri</span> <select id="xSort"><option value="set"></option><option value="asc"></option><option value="desc"></option></select></label>
+    <span class="note" id="xCount" aria-live="polite"></span>
+  </div>
+  <div class="list" id="xList"></div>
+  <button class="more" id="xMore" hidden><span lang="en">Show more</span><span lang="fr">Afficher plus</span></button>
+  <h2 lang="en">Groups that look right but can’t be solved</h2><h2 lang="fr">Des combinaisons qui semblent bonnes mais sans solution</h2>
+  <p id="xNosolText"></p>
+  <div class="nochips" id="xNosol"></div>
+</div></section>
+
+<!--VIEWS-->
+
+<section class="view" id="v-naming"><div class="wrap">
+ <div lang="en">
+  <h1>How the pieces are named</h1>
+  <p class="lede">The labels on the pieces look arbitrary, but one generation order explains all of them: sort by the longest straight line in the piece, then move the extra cubes from the end of that line toward its middle.</p>
+  <h2>Pentominoes: 2 to 8</h2>
+  <p>Applied to all 12 pentominoes, the order puts the I bar first, then L and Y (a line of 4 with one cube walked inward), then the pieces built on a line of 3 with their extra cubes at an end (N, V, P as a domino; U, Z as two single cubes), then the three that use the middle of the line (T, F, X), and finally W, which has no straight line of 3.</p>
+  <div class="pentorder"><!--PENTORDER_EN--></div>
+  <p>The box keeps exactly one contiguous block of that order, numbers 2–8. The pieces left out sit at the two ends: 1, the I bar, which on a 5-wide board is just one more full row, and 9–12, the pieces that branch from the centre or have no straight run. Katamino, Gigamic’s pentomino-only game by the same authors, most likely uses the same numbering.</p>
+  <h2>Tetrominoes: A to E</h2>
+  <p>The same rule, counting forward with letters: A is the I (line of 4); B the L (line of 3, extra cube at the end); C the T (line of 3, extra cube in the middle); D the S (two dominoes offset) and E the O (two dominoes side by side). Offset before alongside matches the pentominoes, where N (4) comes before P (6).</p>
+  <h2>Small pieces: Y down to V</h2>
+  <p>Counted backward from the end of the alphabet: Y the I tromino, X the L tromino, W the domino, V the monomino. Straight before bent again, as with A before B.</p>
+  <p class="caption">This is a reconstruction from the pieces themselves, not something documented by the publisher. The boundaries (which pieces are missing) are the strongest evidence; the order inside the line-of-3 group is the least certain part.</p>
+ </div>
+ <div lang="fr">
+  <h1>D’où viennent les noms des pièces</h1>
+  <p class="lede">Les étiquettes des pièces semblent arbitraires, mais un seul ordre de génération les explique toutes : trier selon la plus longue ligne droite de la pièce, puis déplacer les cubes supplémentaires du bout de cette ligne vers son milieu.</p>
+  <h2>Pentaminos : de 2 à 8</h2>
+  <p>Appliqué aux 12 pentaminos, cet ordre place d’abord la barre I, puis le L et le Y (une ligne de 4 dont un cube se déplace vers l’intérieur), puis les pièces construites sur une ligne de 3 avec leurs cubes supplémentaires à un bout (N, V, P en domino ; U, Z en deux cubes séparés), puis les trois qui utilisent le milieu de la ligne (T, F, X), et enfin le W, qui n’a pas de ligne droite de 3.</p>
+  <div class="pentorder"><!--PENTORDER_FR--></div>
+  <p>La boîte garde exactement un bloc continu de cet ordre, les numéros 2 à 8. Les pièces absentes se trouvent aux deux extrémités : le 1, la barre I, qui sur un plateau de 5 de large n’est qu’une rangée complète de plus, et les 9 à 12, les pièces qui partent du centre ou n’ont pas de ligne droite. Le Katamino, le jeu de Gigamic des mêmes auteurs qui n’utilise que des pentaminos, utilise très probablement la même numérotation.</p>
+  <h2>Tétraminos : de A à E</h2>
+  <p>La même règle, en comptant vers l’avant avec des lettres : A est le I (ligne de 4) ; B le L (ligne de 3, cube supplémentaire au bout) ; C le T (ligne de 3, cube supplémentaire au milieu) ; D le S (deux dominos décalés) et E le O (deux dominos côte à côte). Décalé avant côte à côte : comme pour les pentaminos, où le N (4) vient avant le P (6).</p>
+  <h2>Petites pièces : de Y à V</h2>
+  <p>Comptées à rebours depuis la fin de l’alphabet : Y le triomino I, X le triomino L, W le domino, V le monomino. Droit avant coudé, là encore, comme A avant B.</p>
+  <p class="caption">Il s’agit d’une reconstitution à partir des pièces, pas d’une information de l’éditeur. Les limites (quelles pièces manquent) sont l’indice le plus solide ; l’ordre à l’intérieur du groupe à ligne de 3 est la partie la moins sûre.</p>
+ </div>
+</div></section>
+
+<section class="view" id="v-method"><div class="wrap">
+ <div lang="en">
+  <h1>Method</h1>
+  <h2>Rules analysed</h2>
+  <p>A starting set is any group of 5 or 6 different pieces whose area is 15 or 20, so it could fill a 3×5 or 4×5 rectangle. Once solved, the player adds a pentomino not already used and the rectangle grows by one row, up to three times (3×5 to 6×5, 4×5 to 7×5). Pieces may be rotated and turned over.</p>
+  <h2>Counting solutions</h2>
+  <p>The solver fills the first empty cell (row by row), trying every remaining piece in every orientation that covers it, so each tiling is reached exactly once. It abandons any position leaving an empty region whose size can’t be made from the remaining pieces. Solutions differing only by turning or mirroring the whole rectangle are counted once (four symmetries, eight for the 5×5 square).</p>
+  <h2>Checking every game path</h2>
+  <p>Whether a rectangle can be solved depends only on the pieces in it, not on the order they were added. So a starting set never locks when every set made by adding any 1, 2 or 3 of its unused pentominoes is solvable, which covers every ordered sequence of picks. Each distinct set of pieces is solved once and shared between all the paths that reach it: 7,877 sets for the box, 86,870 with the full 12 pentominoes.</p>
+  <h2>Difficulty and the pair mode</h2>
+  <p>The Play page ranks the never-locking starts of each rectangle size by solution count and splits them into four bands of about equal size. In two-player mode, the two sets share no piece except the doubled W and V, and the pentominoes left over form a shared pool for additions. Every set dealt is safe against any additions from that pool.</p>
+  <h2>Assumptions</h2>
+  <p>Piece shapes were read from a photo of the box. The “with printed 1, 9, 10, 12” option adds four of the five missing pentominoes and leaves out 11 (X), which locks most starting sets (see <a href="#full">Full set</a>).</p>
+  <h2>Reproducing</h2>
+  <pre>make solver      # compiles solver/solver.cpp
+make data        # recomputes data/results_box.json and results_full.json
+make site        # builds build/index.html (this page)</pre>
+  <p>The results files ship with the repository, so <code>make site</code> works on its own. Recomputing the full 12-pentomino data from scratch takes under an hour on one core; the cache in <code>build/</code> lets an interrupted run resume.</p>
+ </div>
+ <div lang="fr">
+  <h1>Méthode</h1>
+  <h2>Règles analysées</h2>
+  <p>Une combinaison de départ est un groupe de 5 ou 6 pièces différentes dont l’aire vaut 15 ou 20, de quoi remplir un rectangle de 3×5 ou 4×5. Une fois le rectangle résolu, le joueur ajoute un pentamino pas encore utilisé et le rectangle grandit d’une rangée, jusqu’à trois fois (de 3×5 à 6×5, de 4×5 à 7×5). Les pièces peuvent être tournées et retournées.</p>
+  <h2>Compter les solutions</h2>
+  <p>Le solveur remplit la première case vide (rangée par rangée) en essayant chaque pièce restante dans chaque orientation qui la couvre : chaque pavage est ainsi trouvé exactement une fois. Il abandonne toute position qui laisse une zone vide dont la taille ne peut pas être obtenue avec les pièces restantes. Les solutions qui ne diffèrent que par une rotation ou une symétrie du rectangle entier comptent pour une (quatre symétries, huit pour le carré 5×5).</p>
+  <h2>Vérifier tous les déroulements</h2>
+  <p>La résolubilité d’un rectangle ne dépend que des pièces qu’il contient, pas de l’ordre dans lequel elles ont été ajoutées. Une combinaison ne se bloque donc jamais si tout ensemble obtenu en ajoutant 1, 2 ou 3 de ses pentaminos inutilisés est soluble, ce qui couvre toutes les suites de choix possibles. Chaque ensemble de pièces distinct est résolu une seule fois et partagé entre tous les déroulements qui y mènent : 7 877 ensembles pour la boîte, 86 870 avec les 12 pentaminos.</p>
+  <h2>Difficulté et mode à deux</h2>
+  <p>La page Jouer classe les départs qui ne se bloquent jamais, pour chaque taille de rectangle, selon leur nombre de solutions, et les répartit en quatre tranches de taille à peu près égale. En mode deux joueurs, les deux combinaisons n’ont aucune pièce en commun sauf les W et V en double, et les pentaminos restants forment une réserve commune pour les ajouts. Chaque combinaison distribuée reste sûre quels que soient les ajouts tirés de cette réserve.</p>
+  <h2>Hypothèses</h2>
+  <p>Les formes des pièces ont été relevées sur une photo de la boîte. L’option « avec 1, 9, 10, 12 imprimés » ajoute quatre des cinq pentaminos manquants et laisse de côté le 11 (X), qui bloque la plupart des combinaisons (voir <a href="#full">Jeu complet</a>).</p>
+  <h2>Reproduire les résultats</h2>
+  <pre>make solver      # compile solver/solver.cpp
+make data        # recalcule data/results_box.json et results_full.json
+make site        # construit build/index.html (cette page)</pre>
+  <p>Les fichiers de résultats sont fournis avec le dépôt : <code>make site</code> fonctionne seul. Recalculer les données des 12 pentaminos depuis zéro prend moins d’une heure sur un cœur ; le cache dans <code>build/</code> permet de reprendre un calcul interrompu.</p>
+ </div>
+</div></section>
+</main>
+
+<script>
+const SITE = /*DATA*/null;
+const PC = {}; SITE.pieces.forEach(p => PC[p.name] = p);
+const DISP = n => SITE.display[n] || n;
+let LANG = "en";
+const T = (en, fr) => LANG === "fr" ? fr : en;
+const fmt = n => n.toLocaleString(LANG === "fr" ? "fr-FR" : "en-US");
+const INK = "#1b1208", DARK = new Set(["3","X","5"]);
+
+function gridSVG(g, w, h, cell, opts = {}) {
+  const at = (r, c) => g[r * w + c];
+  let R = h, C = w, get = at;
+  if (opts.transpose) { R = w; C = h; get = (r, c) => at(c, r); }
+  const W = C * cell, H = R * cell, sw = Math.max(1.2, cell / 14);
+  let s = `<svg ${opts.fluid ? 'width="100%"' : `width="${W}" height="${H}"`} viewBox="0 0 ${W} ${H}" role="img" aria-label="${opts.label || ""}">`;
+  for (let r = 0; r < R; r++) for (let c = 0; c < C; c++)
+    s += `<rect x="${c*cell}" y="${r*cell}" width="${cell+.5}" height="${cell+.5}" fill="${PC[get(r,c)].color}"/>`;
+  let d = "";
+  const diff = (a, b) => a !== b || a === "V";
+  for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) {
+    if (c + 1 < C && diff(get(r,c), get(r,c+1))) d += `M${(c+1)*cell} ${r*cell}v${cell}`;
+    if (r + 1 < R && diff(get(r,c), get(r+1,c))) d += `M${c*cell} ${(r+1)*cell}h${cell}`;
+  }
+  s += `<path d="${d}" stroke="${INK}" stroke-width="${sw}" fill="none" stroke-linecap="square"/>`;
+  s += `<rect x="${sw/2}" y="${sw/2}" width="${W-sw}" height="${H-sw}" fill="none" stroke="${INK}" stroke-width="${sw}"/>`;
+  if (opts.labels) {
+    const seen = new Set();
+    for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) {
+      const ch = get(r,c), id = ch === "V" ? `V${r},${c}` : ch;
+      if (seen.has(id)) continue; seen.add(id);
+      const t = DISP(ch);
+      s += `<text x="${c*cell+cell/2}" y="${r*cell+cell/2}" dy=".35em" text-anchor="middle" font-size="${cell*(t.length>1?.36:.42)}" font-weight="700" font-family="Bricolage Grotesque,system-ui,sans-serif" fill="${DARK.has(ch) ? "#fff" : INK}">${t}</text>`;
+    }
+  }
+  return s + "</svg>";
+}
+function shapeSVG(name, cell = 14) {
+  const cs = PC[name].cells, mr = Math.min(...cs.map(c => c[0])), mc = Math.min(...cs.map(c => c[1]));
+  const h = Math.max(...cs.map(c => c[0])) - mr + 1, w = Math.max(...cs.map(c => c[1])) - mc + 1;
+  let s = `<svg width="${w*cell}" height="${h*cell}" viewBox="0 0 ${w*cell} ${h*cell}" aria-hidden="true">`;
+  cs.forEach(([r, c]) => s += `<rect x="${(c-mc)*cell}" y="${(r-mr)*cell}" width="${cell}" height="${cell}" fill="${PC[name].color}" stroke="${INK}" stroke-width="1.2"/>`);
+  return s + "</svg>";
+}
+function emptyBoard(h, cell = 22) {
+  const W = 5 * cell, H = h * cell;
+  let s = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${h}×5">`;
+  for (let r = 0; r < h; r++) for (let c = 0; c < 5; c++)
+    s += `<rect x="${c*cell+1}" y="${r*cell+1}" width="${cell-2}" height="${cell-2}" rx="3" fill="none" stroke="var(--line)" stroke-width="1.5"/>`;
+  return s + `<rect x="1" y="1" width="${W-2}" height="${H-2}" fill="none" stroke="var(--ink)" stroke-width="2"/></svg>`;
+}
+
+// ------------------------------------------------------------------ router
+const VIEWS = [...document.querySelectorAll(".view")].map(v => v.id.slice(2));
+function route() {
+  let t = location.hash.slice(1);
+  if (!VIEWS.includes(t)) t = "home";
+  document.querySelectorAll(".view").forEach(v => v.classList.toggle("on", v.id === "v-" + t));
+  document.querySelectorAll(".topbar nav a").forEach(a => a.setAttribute("aria-current", a.getAttribute("href") === "#" + t ? "page" : "false"));
+  window.scrollTo(0, 0);
+}
+addEventListener("hashchange", route); route();
+
+// ------------------------------------------------------------------ segmented controls
+function seg(id, onChange) {
+  const el = document.getElementById(id);
+  el.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    el.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    onChange(b.dataset.v);
+  });
+  return () => el.querySelector('[aria-pressed="true"]').dataset.v;
+}
+
+// ------------------------------------------------------------------ home
+const TRAY = "3AAAA" + "33777" + "35747" + "35V44" + "25554" + "22224" + "CDDXX" + "CCDDX" + "C6BBB" + "6688B" + "668EE" + "V88EE" + "WWYYY";
+document.getElementById("tray").outerHTML = gridSVG(TRAY, 5, 13, 60, {transpose: true, labels: true, fluid: true, label: "5×13"});
+function renderHome() {
+  document.getElementById("homefacts").innerHTML = SITE.homeFacts.map(f => `<div><b>${T(f[0], f[1])}</b><span>${T(f[2], f[3])}</span></div>`).join("");
+}
+
+// ------------------------------------------------------------------ play
+const TIER = () => [T("Easy", "Facile"), T("Medium", "Moyen"), T("Hard", "Difficile"), "Expert"];
+const POOLS = {};
+for (const [name, P] of Object.entries(SITE.play)) {
+  const sets = P.sets.map(([k, h, u, g]) => ({k, h, u, g}));
+  const bounds = {};
+  for (const h of [3, 4]) {
+    const hs = sets.filter(s => s.h === h).sort((a, b) => b.u - a.u || (a.k < b.k ? -1 : 1));
+    const first = {};                       // equal counts always share a tier
+    hs.forEach((s, i) => { if (!(s.u in first)) first[s.u] = i; s.tier = Math.min(3, Math.floor(4 * first[s.u] / hs.length)); });
+    bounds[h] = [0,1,2,3].map(t => { const us = hs.filter(s => s.tier === t).map(s => s.u); return [Math.min(...us), Math.max(...us)]; });
+  }
+  POOLS[name] = {sets, bounds, pent: P.pentominoes, inv: P.inventory};
+}
+let lastDeal = null;
+function setMode(v) {
+  document.getElementById("pD2g").hidden = document.getElementById("pAddg").hidden = v !== "pair";
+  document.getElementById("pD1l").textContent = v === "pair" ? T("Player 1 difficulty", "Difficulté du joueur 1") : T("Difficulty", "Difficulté");
+}
+const getMode = seg("pMode", v => { setMode(v); showTiers(); });
+const getPool = seg("pPool", () => showTiers());
+const getRect = seg("pRect", () => showTiers());
+const getD1 = seg("pD1", () => {}), getD2 = seg("pD2", () => {}), getAdd = seg("pAdd", () => {});
+function showTiers() {
+  const P = POOLS[getPool()], r = getRect(), tn = TIER();
+  const hs = r === "any" ? [3, 4] : [+r];
+  document.getElementById("pTiers").innerHTML = hs.map(h =>
+    `${h}×5 : `.replace(" :", T(":", " :")) + tn.map((t, i) => `${t} ${fmt(P.bounds[h][i][0])}${P.bounds[h][i][1] !== P.bounds[h][i][0] ? "–" + fmt(P.bounds[h][i][1]) : ""}`).join(" · ") + " solutions").join("<br>");
+}
+const rnd = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+function fits(a, b, inv) {
+  const c = {}; for (const x of a + b) c[x] = (c[x] || 0) + 1;
+  return Object.entries(c).every(([x, n]) => n <= (inv[x] || 0));
+}
+function handHTML(s, title) {
+  const pcs = [...s.k].map(c => `<figure>${shapeSVG(c, 18)}<figcaption>${DISP(c)}</figcaption></figure>`).join("");
+  return `<div class="hand"><h3>${title}</h3>
+    <div class="sub">${TIER()[s.tier]} · ${s.h}×5 · ${fmt(s.u)} solution${s.u > 1 ? "s" : ""}</div>
+    <div class="pieces">${pcs}</div>
+    <div class="board">${emptyBoard(s.h)}</div>
+    <details><summary>${T("Show one solution", "Voir une solution")}</summary>${gridSVG(s.g, 5, s.h, 26, {labels: true})}</details></div>`;
+}
+function poolHTML(rest, note) {
+  return `<div class="pool"><b>${T("Pentominoes to add", "Pentaminos à ajouter")}</b> <span class="note">${note}</span>
+    <div class="pieces">${rest.map(c => `<figure>${shapeSVG(c, 14)}<figcaption>${DISP(c)}</figcaption></figure>`).join("") || `<span class="note">${T("none left", "il n’en reste aucun")}</span>`}</div></div>`;
+}
+function renderDeal() {
+  const out = document.getElementById("pOut"), D = lastDeal;
+  if (!D) { out.innerHTML = ""; return; }
+  const tn = TIER();
+  if (D.fail) {
+    out.innerHTML = `<p class="warn">${T(
+      `No pair of ${tn[D.d1]} and ${tn[D.d2]} sets can be played together with these pieces${D.need ? ` and leave ${2*D.need} pentominoes to add` : ""}. Try fewer pentominoes each, another rectangle, or the printed extras.`,
+      `Aucune paire de combinaisons ${tn[D.d1]} et ${tn[D.d2]} n’est jouable ensemble avec ces pièces${D.need ? ` en laissant ${2*D.need} pentaminos à ajouter` : ""}. Essayez moins de pentaminos chacun, un autre rectangle ou les pièces imprimées.`)}</p>`;
+    return;
+  }
+  if (D.solo) {
+    out.innerHTML = `<div class="deal">${handHTML(D.a, T("Your starting set", "Votre combinaison de départ"))}</div>` +
+      poolHTML(D.rest, T(`Add them one at a time, in any order: every step stays solvable. ${fmt(D.n)} sets match this difficulty.`,
+                         `Ajoutez-les un par un, dans n’importe quel ordre : chaque étape reste soluble. ${fmt(D.n)} combinaisons correspondent à cette difficulté.`));
+    return;
+  }
+  const each = Math.floor(D.rest.length / 2), n = D.rest.length;
+  out.innerHTML = `<div class="deal">${handHTML(D.a, T("Player 1", "Joueur 1"))}${handHTML(D.b, T("Player 2", "Joueur 2"))}</div>` +
+    poolHTML(D.rest, T(`Shared pool: ${n} pentomino${n === 1 ? "" : "es"}, enough for ${each} each. Any pick from it keeps both rectangles solvable.`,
+                       `Réserve commune : ${n} pentamino${n === 1 ? "" : "s"}, de quoi en ajouter ${each} chacun. Tout choix dans cette réserve garde les deux rectangles solubles.`));
+}
+document.getElementById("pGo").addEventListener("click", () => {
+  const P = POOLS[getPool()], r = getRect();
+  const ok = (s, t) => s.tier === t && (r === "any" || s.h === +r);
+  const d1 = +getD1();
+  if (getMode() === "solo") {
+    const c = P.sets.filter(s => ok(s, d1)), a = rnd(c);
+    lastDeal = {solo: true, a, n: c.length, rest: P.pent.filter(p => !a.k.includes(p))};
+  } else {
+    const d2 = +getD2(), need = +getAdd();
+    const A = shuffle(P.sets.filter(s => ok(s, d1))), B = P.sets.filter(s => ok(s, d2));
+    let pair = null;
+    for (const a of A) {
+      const bs = B.filter(b => b.k !== a.k && fits(a.k, b.k, P.inv) &&
+        P.pent.filter(p => !a.k.includes(p) && !b.k.includes(p)).length >= 2 * need);
+      if (bs.length) { pair = [a, rnd(bs)]; break; }
+    }
+    lastDeal = pair ? {a: pair[0], b: pair[1], rest: P.pent.filter(p => !pair[0].k.includes(p) && !pair[1].k.includes(p))}
+                    : {fail: true, d1, d2, need};
+  }
+  renderDeal();
+});
+
+// ------------------------------------------------------------------ explorer (box as sold)
+const X = SITE.explore, ORDER = X.order;
+const area = k => [...k].reduce((a, c) => a + PC[c].cells.length, 0);
+const sols = k => X.sets[k] ? X.sets[k][1] : 0;
+const keyOf = s => [...s].sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b)).join("");
+const xs = X.starts.map(([k, unused, fails]) => ({k, unused, fails, h: area(k) / 5, n: k.length, u: sols(k), bad: fails.some(f => f.length)}));
+const chips = k => [...k].map(c => `<span class="chip"><i style="background:${PC[c].color}"></i>${DISP(c)}</span>`).join("");
+const F = {h: "all", n: "all", s: "all", q: "", sort: "set"};
+let shown = 60, openKey = null, viewKey = null;
+for (const [id, prop] of [["xH", "h"], ["xN", "n"], ["xS", "s"]]) seg(id, v => { F[prop] = v; shown = 60; xRender(); });
+document.getElementById("xQ").addEventListener("input", e => { F.q = e.target.value.toUpperCase().replace(/[^2-8A-EXYWV]/g, ""); shown = 60; xRender(); });
+document.getElementById("xSort").addEventListener("change", e => { F.sort = e.target.value; xRender(); });
+document.getElementById("xMore").addEventListener("click", () => { shown += 120; xRender(); });
+const contains = (k, q) => { const need = {}; for (const c of q) need[c] = (need[c] || 0) + 1; return Object.entries(need).every(([c, n]) => k.split(c).length - 1 >= n); };
+function xFiltered() {
+  let r = xs.filter(s => (F.h === "all" || s.h == F.h) && (F.n === "all" || s.n == F.n) && (F.s === "all" || (F.s === "bad") === s.bad) && contains(s.k, F.q));
+  if (F.sort === "asc") r = r.slice().sort((a, b) => a.u - b.u);
+  if (F.sort === "desc") r = r.slice().sort((a, b) => b.u - a.u);
+  return r;
+}
+function detailHTML(s) {
+  let cols = "";
+  for (let d = 1; d <= X.maxAdd; d++) {
+    const combos = [];
+    (function rec(i, acc) { if (acc.length === d) { combos.push(acc.join("")); return; } for (let j = i; j < s.unused.length; j++) rec(j + 1, [...acc, s.unused[j]]); })(0, []);
+    cols += `<div class="col"><h4>+${d} → ${s.h + d}×5</h4>` + combos.map(q => {
+      const k = keyOf(s.k + q), u = sols(k);
+      return `<button class="step${u ? "" : " dead"}" data-k="${k}" aria-pressed="false"><span>+ ${q.split("").join(", ")}</span><span>${u ? fmt(u) : T("no solution", "aucune solution")}</span></button>`;
+    }).join("") + `</div>`;
+  }
+  return `<div class="detail" id="xDet"><div class="viewer" id="xViewer"></div><div class="ladder"><div class="col"><h4>${T("Start", "Départ")} ${s.h}×5</h4><button class="step" data-k="${s.k}" aria-pressed="true"><span>${s.k}</span><span>${fmt(s.u)}</span></button></div>${cols}</div></div>`;
+}
+function showViewer(k) {
+  const v = document.getElementById("xViewer"); if (!v) return;
+  viewKey = k;
+  const [fx, u, g] = X.sets[k], h = area(k) / 5;
+  v.innerHTML = g ? `${gridSVG(g, 5, h, 34, {labels: true, label: k})}<div class="vt"><b>${k}</b> ${T("in", "en")} ${h}×5<br>${T(
+      `${fmt(u)} solution${u > 1 ? "s" : ""} up to symmetry (${fmt(fx)} counting every turn and mirror image). One is shown.`,
+      `${fmt(u)} solution${u > 1 ? "s" : ""} aux symétries près (${fmt(fx)} en comptant chaque rotation et chaque reflet). Une est montrée.`)}</div>`
+    : `<div class="vt"><b>${k}</b> ${T("in", "en")} ${h}×5 ${T("has no solution. Adding this pentomino first is a dead end.", "n’a aucune solution. Ajouter ce pentamino en premier mène à une impasse.")}</div>`;
+  document.querySelectorAll("#xDet .step").forEach(b => b.setAttribute("aria-pressed", b.dataset.k === k));
+}
+function xRender() {
+  const r = xFiltered();
+  document.getElementById("xCount").textContent = `${fmt(r.length)} ${T(r.length === 1 ? "set" : "sets", r.length === 1 ? "combinaison" : "combinaisons")}`;
+  document.getElementById("xList").innerHTML = r.slice(0, shown).map(s => {
+    const st = s.bad ? `<span class="status bad">${T("Dead end if first added:", "Impasse si ajouté en premier :")} ${s.fails[0].join(", ")}</span>` : `<span class="status ok">${T("Never locks", "Ne se bloque jamais")}</span>`;
+    return `<div><button class="row" data-k="${s.k}" aria-expanded="${openKey === s.k}">${gridSVG(X.sets[s.k][2], 5, s.h, s.h === 3 ? 13 : 12)}
+      <span><span class="chips">${chips(s.k)}</span><span class="caption">${s.h}×5, ${s.n} ${T("pieces, unused pentominoes", "pièces, pentaminos inutilisés")} ${s.unused.split("").join(" ")}</span></span>
+      <span class="meta"><b>${fmt(s.u)}</b> solution${s.u > 1 ? "s" : ""}${st}</span></button>${openKey === s.k ? detailHTML(s) : ""}</div>`;
+  }).join("");
+  document.getElementById("xMore").hidden = r.length <= shown;
+  if (openKey) showViewer(viewKey && document.querySelector(`#xDet .step[data-k="${viewKey}"]`) ? viewKey : openKey);
+}
+document.getElementById("xList").addEventListener("click", e => {
+  const step = e.target.closest(".step"); if (step) { showViewer(step.dataset.k); return; }
+  const row = e.target.closest(".row"); if (!row) return;
+  openKey = openKey === row.dataset.k ? null : row.dataset.k; viewKey = openKey; xRender();
+});
+const nos = X.candidates.filter(k => !sols(k));
+function renderExplorerText() {
+  const o = document.getElementById("xSort").options;
+  o[0].text = T("By pieces", "Par pièces"); o[1].text = T("Fewest solutions", "Moins de solutions"); o[2].text = T("Most solutions", "Plus de solutions");
+  document.getElementById("xNosolText").textContent = T(
+    `${fmt(nos.length)} groups of 5 or 6 different pieces add up to 15 or 20 cells but have no tiling at all.`,
+    `${fmt(nos.length)} groupes de 5 ou 6 pièces différentes totalisent 15 ou 20 cases mais n’ont aucun pavage.`);
+  document.getElementById("xNosol").innerHTML = nos.map(k => `<span>${k} <span class="caption">${area(k)/5}×5</span></span>`).join("");
+}
+
+// ------------------------------------------------------------------ language
+function setLang(l) {
+  LANG = l === "fr" ? "fr" : "en";
+  document.documentElement.lang = LANG;
+  document.documentElement.dataset.lang = LANG;
+  document.title = T("Katamino Family, solved", "Gagne ton papa !, résolu");
+  document.querySelectorAll("#lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === LANG));
+  try { localStorage.setItem("lang", LANG); } catch (e) {}
+  renderHome(); setMode(getMode()); showTiers(); renderDeal(); renderExplorerText(); xRender();
+}
+document.getElementById("lang").addEventListener("click", e => { const b = e.target.closest("button"); if (b) setLang(b.dataset.v); });
+let initial = "en";
+try { initial = localStorage.getItem("lang") || ((navigator.language || "").toLowerCase().startsWith("fr") ? "fr" : "en"); } catch (e) {}
+setLang(initial);
+</script>
+</body>
+</html>
