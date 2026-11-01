@@ -36,9 +36,11 @@ view exists in both languages and the EN / FR switch in the top bar remembers th
 
 ```
 solver/solver.cpp          exhaustive tiling counter (C++, reads jobs on stdin)
-solver/solver.go           Go port of the solver, same output, jobs in parallel
+solver/solver.go           Go port of the solver, same output, jobs in parallel (-forgiveness mode too)
 solver/compare.py          checks a solver against the published data/results_*.json
 analysis/pieces.py         piece shapes, box contents, printed extras
+analysis/play.py           playable sets, the five difficulty bands, two-player rounds
+analysis/forgiveness.py    how forgiving each set is (drives difficulty) -> data/forgiveness.json
 analysis/katamino.py       enumerates starting sets and game paths, calls the solver
 analysis/kata_common.py    shared loading, SVG drawing and en/fr formatting helpers
 analysis/gen_sets_locks.py "Safe sets" and "Locks" views
@@ -49,8 +51,10 @@ site/template.html         website shell: Home, Play, Explorer, Naming, Method
 site/build_site.py         assembles everything into build/index.html
 data/results_box.json      solved data for the box as sold
 data/results_full.json     solved data with all 12 pentominoes
+data/forgiveness.json      forgiveness of every starting set
 examples/solve_5x5.py      the first small puzzle: six pieces into a 5×5 square
 print3d/make_stl.py        3D-printable pieces and boards (see print3d/README.md)
+cards/make_cards.py        printable two-player card deck (cards/cards_en.pdf, cards_fr.pdf)
 ```
 
 ## Usage
@@ -61,6 +65,7 @@ Requirements: Python 3.8+ (standard library only) and a C++17 compiler.
 make site      # build/index.html from the shipped data (seconds)
 make solver    # compile the solver
 make solver-go # Go port, same results on all cores (check: python solver/compare.py box build/solver-go)
+make cards     # two-player card deck as PDF (needs Chrome or Edge)
 make data      # recompute both results files (resumable: progress is cached in build/)
 ```
 
@@ -73,11 +78,16 @@ URL hash: `#play`, `#sets`, `#explore`, `#locks`, `#growth`, `#full`, `#naming`,
 - **One player:** choose the pieces (box as sold, or with printed 1, 9, 10, 12), the
   starting rectangle and a difficulty. You get a starting set that never locks, the pool
   of pentominoes to add, and a hidden solution.
-- **Two players:** choose a difficulty for each player and how many pentominoes each
-  should be able to add. The two sets share no piece except the doubled W and V, and the
+- **Two players:** choose a difficulty for each player; the number of rounds follows from
+  the starting rectangle (see below). The two sets share no piece except the doubled W and V, and the
   leftover pentominoes form a shared pool that is safe for both.
-- Difficulty bands are quartiles of the starting rectangle's solution count, per rectangle
-  size (Easy = most solutions).
+- Difficulty is how forgiving a set is: the chance that placing its big pieces (4-5
+  squares) at random, largest first, leaves gaps its small pieces (1-3 squares) can fill.
+  Small pieces patch gaps, so few solutions alone don't make a set hard. Bands are fifths
+  per rectangle size, ties broken by solution count.
+- Two players on the 5×13 board grow their rectangles to 6 rows each: 3 rounds from a
+  3×5 start, 2 from a 4×5 start. Each player uses a separator until 6 + 6, when one
+  separator in the middle row serves both.
 
 ## Caveats
 

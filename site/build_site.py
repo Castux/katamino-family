@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.join(ROOT, "analysis"))
 import kata_common as kc
 import gen_sets_locks, gen_growth   # noqa: F401  (register fragments)
 import gen_full12                   # noqa: F401  (must come last: temporarily swaps kc.P)
+import play
 
 BOX = json.load(open(os.path.join(ROOT, "data", "results_box.json")))
 FULL = json.load(open(os.path.join(ROOT, "data", "results_full.json")))
@@ -34,29 +35,16 @@ def scope(css, sel):
     return "\n".join(out)
 
 # ------------------------------------------------------------------ data for the browser
-def safe_without(fails, banned):
-    return not any(not any(c in banned for c in q) for f in fails for q in f)
-
-size_box = {p["name"]: len(p["cells"]) for p in BOX["pieces"]}
-box_play = [[k, sum(size_box[c] for c in k) // 5, BOX["sets"][k][1], BOX["sets"][k][2]]
-            for k, un, fails in BOX["starts"] if not any(fails)]
-EXTRAS = {"1", "9", "F", "M"}               # 11 (X) is left out on purpose
-size_full = {p["name"]: len(p["cells"]) for p in FULL["pieces"]}
-ext_play = [[k, sum(size_full[c] for c in k) // 5, FULL["sets"][k][1], FULL["sets"][k][2]]
-            for k, un, fails in FULL["starts"] if "K" not in k and safe_without(fails, {"K"})]
-inv_box = {p["name"]: p["copies"] for p in BOX["pieces"]}
-inv_ext = dict(inv_box, **{e: 1 for e in EXTRAS})
-order_full = [p["name"] for p in FULL["pieces"]]
-pent_box = [p["name"] for p in BOX["pieces"] if len(p["cells"]) == 5]
-pent_ext = [n for n in order_full if size_full[n] == 5 and n != "K"]
+PLAY = play.pools()
+pack = lambda sets: [[s["k"], s["h"], s["u"], s["g"], s["band"], s["f"]] for s in sets]
+box_play, ext_play = PLAY["box"]["sets"], PLAY["extras"]["sets"]
 
 n_box_safe = len(box_play)
 site_data = {
     "pieces": FULL["pieces"], "display": FULL["display"],
-    "play": {
-        "box": {"sets": box_play, "pentominoes": pent_box, "inventory": inv_box},
-        "extras": {"sets": ext_play, "pentominoes": pent_ext, "inventory": inv_ext},
-    },
+    "play": {name: {"sets": pack(P["sets"]), "pentominoes": P["pentominoes"], "inventory": P["inventory"]}
+              for name, P in PLAY.items()},
+    "bands": {"count": play.BANDS, "finalRows": play.FINAL_ROWS, "names": play.BAND_NAMES},
     "explore": {"starts": BOX["starts"], "sets": BOX["sets"], "candidates": BOX["candidates"],
                 "maxAdd": BOX["maxAdd"], "order": [p["name"] for p in BOX["pieces"]]},
     "homeFacts": [

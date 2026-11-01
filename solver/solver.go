@@ -250,7 +250,9 @@ func (s *solver) search(occupied uint64, piecesLeft int) {
 	}
 }
 
-func (s *solver) run(current job) string {
+// setup prepares the board masks and piece lists for a job and returns the number
+// of pieces to place.
+func (s *solver) setup(current job) int {
 	s.height, s.cellCount = current.height, current.height*width
 	if s.cellCount == 64 {
 		s.boardMask = ^uint64(0)
@@ -275,6 +277,11 @@ func (s *solver) run(current job) string {
 		s.sizes[i] = len(types[typeIndex].cells)
 		piecesLeft += current.counts[i]
 	}
+	return piecesLeft
+}
+
+func (s *solver) run(current job) string {
+	piecesLeft := s.setup(current)
 	s.fixedCount, s.uniqueGrids, s.sample = 0, map[string]struct{}{}, ""
 	s.search(0, piecesLeft)
 	sample := s.sample
@@ -284,8 +291,92 @@ func (s *solver) run(current job) string {
 	return fmt.Sprintf("%d %d %s", s.fixedCount, len(s.uniqueGrids), sample)
 }
 
+// Pieces smaller than this are "small": they can patch whatever gaps the big
+// pieces leave.
+const smallestBig = 4
+
+// forgiveness is the chance that a player who places the big pieces one by one,
+// largest first, each uniformly at random wherever it fits, ends with gaps the small
+// pieces can fill exactly. A big piece that no longer fits anywhere is a failure.
+// With few small pieces the big ones must fit together exactly, so the chance is
+// low; with several small pieces most layouts can be patched.
+func (s *solver) forgiveness(current job) string {
+	s.setup(current)
+	var big []int // job piece index, one entry per copy, largest first
+	for index := range s.remaining {
+		if s.sizes[index] >= smallestBig {
+			for instance := 0; instance < s.remaining[index]; instance++ {
+				big = append(big, index)
+			}
+			s.remaining[index] = 0 // from here on, remaining holds only the small pieces
+		}
+	}
+	sort.SliceStable(big, func(i, j int) bool { return s.sizes[big[i]] > s.sizes[big[j]] })
+	anywhere := make([][]uint64, len(s.placements))
+	for index, byAnchor := range s.placements {
+		for _, masks := range byAnchor {
+			anywhere[index] = append(anywhere[index], masks...)
+		}
+	}
+	// The pieces are placed in a fixed order, so the occupied cells determine how
+	// many have been placed: the memo can be keyed on them alone.
+	chance := map[uint64]float64{}
+	var from func(position int, occupied uint64) float64
+	from = func(position int, occupied uint64) float64 {
+		if value, ok := chance[occupied]; ok {
+			return value
+		}
+		var value float64
+		if position == len(big) {
+			if s.canTile(s.boardMask &^ occupied) {
+				value = 1
+			}
+		} else {
+			fitting := 0
+			for _, mask := range anywhere[big[position]] {
+				if mask&occupied == 0 {
+					fitting++
+					value += from(position+1, occupied|mask)
+				}
+			}
+			if fitting > 0 {
+				value /= float64(fitting)
+			}
+		}
+		chance[occupied] = value
+		return value
+	}
+	return strconv.FormatFloat(from(0, 0), 'g', 8, 64)
+}
+
+// canTile reports whether the remaining pieces cover exactly the free cells.
+func (s *solver) canTile(free uint64) bool {
+	if free == 0 {
+		return true
+	}
+	anchor := bits.TrailingZeros64(free)
+	for index := range s.remaining {
+		if s.remaining[index] == 0 {
+			continue
+		}
+		for _, mask := range s.placements[index][anchor] {
+			if mask&^free != 0 {
+				continue
+			}
+			s.remaining[index]--
+			ok := s.canTile(free &^ mask)
+			s.remaining[index]++
+			if ok {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func main() {
 	workers := flag.Int("j", runtime.NumCPU(), "parallel jobs")
+	forgivenessMode := flag.Bool("forgiveness", false, "count big-piece layouts and how many the small pieces complete, instead of solving")
 	flag.Parse()
 
 	scanner := bufio.NewScanner(os.Stdin)
@@ -344,7 +435,11 @@ func main() {
 		go func() {
 			state := &solver{cache: map[[2]int][][]uint64{}}
 			for i := range jobIndices {
-				results[i] <- state.run(jobs[i])
+				if *forgivenessMode {
+					results[i] <- state.forgiveness(jobs[i])
+				} else {
+					results[i] <- state.run(jobs[i])
+				}
 			}
 		}()
 	}

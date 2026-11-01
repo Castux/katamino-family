@@ -139,12 +139,14 @@ pre{background:var(--panel);padding:12px 16px;border-radius:10px;overflow-x:auto
   <div lang="en">
   <h1>Draw a starting set</h1>
   <p class="lede">Pick a difficulty and the site deals a starting set from those that never lock: whichever pentominoes are added afterwards, in any order, the rectangle stays solvable.</p>
-  <p>Difficulty is the number of solutions of the starting rectangle, split into four bands of about equal size within each rectangle size (sets with the same count always share a band): <b>Easy</b> is the quarter with the most solutions, <b>Expert</b> the quarter with the fewest.</p>
+  <p>Difficulty is how <i>forgiving</i> a set is: the chance that placing its big pieces (4 or 5 squares) one by one, largest first, each at random wherever it fits, leaves gaps its small pieces (1 to 3 squares) can fill. Small pieces patch gaps, so a set with few solutions but a monomino, a domino and a tromino is still easy, while a set with a single small piece needs its big pieces to fit together exactly. Sets are split into five bands of about equal size within each rectangle size, ties broken by solution count: <b>Very easy</b> is the most forgiving fifth, <b>Expert</b> the least.</p>
+  <p>With two players on the 5×13 board, each player adds pentominoes until their rectangle is 6 rows long: 3 rounds from a 3×5 start, 2 from a 4×5 start. Each player closes their rectangle with a separator; at 6 + 6 a single separator in the middle row is enough.</p>
   </div>
   <div lang="fr">
   <h1>Tirer une combinaison de départ</h1>
   <p class="lede">Choisissez une difficulté et le site distribue une combinaison parmi celles qui ne se bloquent jamais : quels que soient les pentaminos ajoutés ensuite, dans n’importe quel ordre, le rectangle reste soluble.</p>
-  <p>La difficulté se mesure au nombre de solutions du rectangle de départ, réparti en quatre tranches de taille à peu près égale pour chaque taille de rectangle (les combinaisons au même nombre de solutions sont toujours dans la même tranche) : <b>Facile</b> est le quart qui a le plus de solutions, <b>Expert</b> le quart qui en a le moins.</p>
+  <p>La difficulté mesure à quel point une combinaison est <i>indulgente</i> : la probabilité qu’en posant ses grandes pièces (4 ou 5 carrés) une par une, de la plus grande à la plus petite, chacune au hasard là où elle tient, les trous restants puissent être comblés par ses petites pièces (1 à 3 carrés). Les petites pièces bouchent les trous : une combinaison avec peu de solutions mais un monomino, un domino et un triomino reste facile, alors qu’avec une seule petite pièce les grandes doivent s’emboîter exactement. Les combinaisons sont réparties en cinq tranches de taille à peu près égale pour chaque taille de rectangle, à égalité départagées par le nombre de solutions : <b>Très facile</b> est le cinquième le plus indulgent, <b>Expert</b> le moins.</p>
+  <p>À deux joueurs sur le plateau 5×13, chacun ajoute des pentaminos jusqu’à ce que son rectangle fasse 6 rangées : 3 manches depuis un départ 3×5, 2 depuis un départ 4×5. Chaque joueur ferme son rectangle avec un séparateur ; à 6 + 6, un seul séparateur dans la rangée du milieu suffit.</p>
   </div>
   <div class="ctl">
     <div class="grp"><span class="lbl"><span lang="en">Mode</span><span lang="fr">Mode</span></span><div class="seg" id="pMode"><button data-v="solo" aria-pressed="true"><span lang="en">One player</span><span lang="fr">Un joueur</span></button><button data-v="pair"><span lang="en">Two players</span><span lang="fr">Deux joueurs</span></button></div></div>
@@ -152,9 +154,8 @@ pre{background:var(--panel);padding:12px 16px;border-radius:10px;overflow-x:auto
     <div class="grp"><span class="lbl"><span lang="en">Start</span><span lang="fr">Départ</span></span><div class="seg" id="pRect"><button data-v="any" aria-pressed="true"><span lang="en">Any</span><span lang="fr">Indifférent</span></button><button data-v="3">3×5</button><button data-v="4">4×5</button></div></div>
   </div>
   <div class="ctl">
-    <div class="grp"><span class="lbl" id="pD1l"></span><div class="seg" id="pD1"><button data-v="0"><span lang="en">Easy</span><span lang="fr">Facile</span></button><button data-v="1" aria-pressed="true"><span lang="en">Medium</span><span lang="fr">Moyen</span></button><button data-v="2"><span lang="en">Hard</span><span lang="fr">Difficile</span></button><button data-v="3">Expert</button></div></div>
-    <div class="grp" id="pD2g" hidden><span class="lbl"><span lang="en">Player 2 difficulty</span><span lang="fr">Difficulté du joueur 2</span></span><div class="seg" id="pD2"><button data-v="0" aria-pressed="true"><span lang="en">Easy</span><span lang="fr">Facile</span></button><button data-v="1"><span lang="en">Medium</span><span lang="fr">Moyen</span></button><button data-v="2"><span lang="en">Hard</span><span lang="fr">Difficile</span></button><button data-v="3">Expert</button></div></div>
-    <div class="grp" id="pAddg" hidden><span class="lbl"><span lang="en">Pentominoes to add, each</span><span lang="fr">Pentaminos à ajouter, chacun</span></span><div class="seg" id="pAdd"><button data-v="0"><span lang="en">Any</span><span lang="fr">Indifférent</span></button><button data-v="1" aria-pressed="true">1</button><button data-v="2">2</button><button data-v="3">3</button></div></div>
+    <div class="grp"><span class="lbl" id="pD1l"></span><div class="seg" id="pD1"><button data-v="0"><span lang="en">Very easy</span><span lang="fr">Très facile</span></button><button data-v="1"><span lang="en">Easy</span><span lang="fr">Facile</span></button><button data-v="2" aria-pressed="true"><span lang="en">Medium</span><span lang="fr">Moyen</span></button><button data-v="3"><span lang="en">Hard</span><span lang="fr">Difficile</span></button><button data-v="4"><span lang="en">Expert</span><span lang="fr">Expert</span></button></div></div>
+    <div class="grp" id="pD2g" hidden><span class="lbl"><span lang="en">Player 2 difficulty</span><span lang="fr">Difficulté du joueur 2</span></span><div class="seg" id="pD2"><button data-v="0"><span lang="en">Very easy</span><span lang="fr">Très facile</span></button><button data-v="1"><span lang="en">Easy</span><span lang="fr">Facile</span></button><button data-v="2" aria-pressed="true"><span lang="en">Medium</span><span lang="fr">Moyen</span></button><button data-v="3"><span lang="en">Hard</span><span lang="fr">Difficile</span></button><button data-v="4"><span lang="en">Expert</span><span lang="fr">Expert</span></button></div></div>
     <button class="go" id="pGo"><span lang="en">Deal</span><span lang="fr">Distribuer</span></button>
   </div>
   <div class="tiers" id="pTiers"></div>
@@ -221,7 +222,7 @@ pre{background:var(--panel);padding:12px 16px;border-radius:10px;overflow-x:auto
   <h2>Checking every game path</h2>
   <p>Whether a rectangle can be solved depends only on the pieces in it, not on the order they were added. So a starting set never locks when every set made by adding any 1, 2 or 3 of its unused pentominoes is solvable, which covers every ordered sequence of picks. Each distinct set of pieces is solved once and shared between all the paths that reach it: 7,877 sets for the box, 86,870 with the full 12 pentominoes.</p>
   <h2>Difficulty and the pair mode</h2>
-  <p>The Play page ranks the never-locking starts of each rectangle size by solution count and splits them into four bands of about equal size. In two-player mode, the two sets share no piece except the doubled W and V, and the pentominoes left over form a shared pool for additions. Every set dealt is safe against any additions from that pool.</p>
+  <p>The Play page ranks the never-locking starts of each rectangle size by forgiveness (the chance that a random placement of the big pieces, largest first, leaves gaps the small pieces can fill exactly; computed exactly by <code>analysis/forgiveness.py</code>), then by solution count, and splits them into five bands of about equal size. In two-player mode, the two sets share no piece except the doubled W and V, and the pentominoes left over form a shared pool for additions, big enough for every round: each player grows their rectangle to 6 rows (3 rounds from 3×5, 2 from 4×5), so both fit the 5×13 board. Every set dealt is safe against any additions from that pool.</p>
   <h2>Assumptions</h2>
   <p>Piece shapes were read from a photo of the box. The “with printed 1, 9, 10, 12” option adds four of the five missing pentominoes and leaves out 11 (X), which locks most starting sets (see <a href="#full">Full set</a>).</p>
   <h2>Reproducing</h2>
@@ -239,7 +240,7 @@ make site        # builds build/index.html (this page)</pre>
   <h2>Vérifier tous les déroulements</h2>
   <p>La résolubilité d’un rectangle ne dépend que des pièces qu’il contient, pas de l’ordre dans lequel elles ont été ajoutées. Une combinaison ne se bloque donc jamais si tout ensemble obtenu en ajoutant 1, 2 ou 3 de ses pentaminos inutilisés est soluble, ce qui couvre toutes les suites de choix possibles. Chaque ensemble de pièces distinct est résolu une seule fois et partagé entre tous les déroulements qui y mènent : 7 877 ensembles pour la boîte, 86 870 avec les 12 pentaminos.</p>
   <h2>Difficulté et mode à deux</h2>
-  <p>La page Jouer classe les départs qui ne se bloquent jamais, pour chaque taille de rectangle, selon leur nombre de solutions, et les répartit en quatre tranches de taille à peu près égale. En mode deux joueurs, les deux combinaisons n’ont aucune pièce en commun sauf les W et V en double, et les pentaminos restants forment une réserve commune pour les ajouts. Chaque combinaison distribuée reste sûre quels que soient les ajouts tirés de cette réserve.</p>
+  <p>La page Jouer classe les départs qui ne se bloquent jamais, pour chaque taille de rectangle, selon leur indulgence (la probabilité qu’un placement au hasard des grandes pièces, de la plus grande à la plus petite, laisse des trous que les petites pièces comblent exactement ; calculée exactement par <code>analysis/forgiveness.py</code>), puis selon leur nombre de solutions, et les répartit en cinq tranches de taille à peu près égale. En mode deux joueurs, les deux combinaisons n’ont aucune pièce en commun sauf les W et V en double, et les pentaminos restants forment une réserve commune pour les ajouts, assez grande pour toutes les manches : chaque joueur agrandit son rectangle jusqu’à 6 rangées (3 manches depuis 3×5, 2 depuis 4×5), pour que les deux tiennent sur le plateau 5×13. Chaque combinaison distribuée reste sûre quels que soient les ajouts tirés de cette réserve.</p>
   <h2>Hypothèses</h2>
   <p>Les formes des pièces ont été relevées sur une photo de la boîte. L’option « avec 1, 9, 10, 12 imprimés » ajoute quatre des cinq pentaminos manquants et laisse de côté le 11 (X), qui bloque la plupart des combinaisons (voir <a href="#full">Jeu complet</a>).</p>
   <h2>Reproduire les résultats</h2>
@@ -332,33 +333,32 @@ function renderHome() {
 }
 
 // ------------------------------------------------------------------ play
-const TIER = () => [T("Easy", "Facile"), T("Medium", "Moyen"), T("Hard", "Difficile"), "Expert"];
+const BANDS = SITE.bands, TIER = () => BANDS.names[LANG];
+const rounds = h => BANDS.finalRows - h;
 const POOLS = {};
 for (const [name, P] of Object.entries(SITE.play)) {
-  const sets = P.sets.map(([k, h, u, g]) => ({k, h, u, g}));
+  const sets = P.sets.map(([k, h, u, g, tier, f]) => ({k, h, u, g, tier, f}));   // bands come from analysis/play.py
   const bounds = {};
-  for (const h of [3, 4]) {
-    const hs = sets.filter(s => s.h === h).sort((a, b) => b.u - a.u || (a.k < b.k ? -1 : 1));
-    const first = {};                       // equal counts always share a tier
-    hs.forEach((s, i) => { if (!(s.u in first)) first[s.u] = i; s.tier = Math.min(3, Math.floor(4 * first[s.u] / hs.length)); });
-    bounds[h] = [0,1,2,3].map(t => { const us = hs.filter(s => s.tier === t).map(s => s.u); return [Math.min(...us), Math.max(...us)]; });
-  }
+  for (const h of [3, 4])
+    bounds[h] = [...Array(BANDS.count).keys()].map(t => { const fs = sets.filter(s => s.h === h && s.tier === t).map(s => s.f); return [Math.min(...fs), Math.max(...fs)]; });
   POOLS[name] = {sets, bounds, pent: P.pentominoes, inv: P.inventory};
 }
 let lastDeal = null;
 function setMode(v) {
-  document.getElementById("pD2g").hidden = document.getElementById("pAddg").hidden = v !== "pair";
+  document.getElementById("pD2g").hidden = v !== "pair";
   document.getElementById("pD1l").textContent = v === "pair" ? T("Player 1 difficulty", "Difficulté du joueur 1") : T("Difficulty", "Difficulté");
 }
 const getMode = seg("pMode", v => { setMode(v); showTiers(); });
 const getPool = seg("pPool", () => showTiers());
 const getRect = seg("pRect", () => showTiers());
-const getD1 = seg("pD1", () => {}), getD2 = seg("pD2", () => {}), getAdd = seg("pAdd", () => {});
+const getD1 = seg("pD1", () => {}), getD2 = seg("pD2", () => {});
+const pct = x => (x * 100).toLocaleString(LANG === "fr" ? "fr-FR" : "en-US", {maximumFractionDigits: x < 0.1 ? 1 : 0}) + " %".slice(LANG === "fr" ? 0 : 1);
 function showTiers() {
   const P = POOLS[getPool()], r = getRect(), tn = TIER();
   const hs = r === "any" ? [3, 4] : [+r];
   document.getElementById("pTiers").innerHTML = hs.map(h =>
-    `${h}×5 : `.replace(" :", T(":", " :")) + tn.map((t, i) => `${t} ${fmt(P.bounds[h][i][0])}${P.bounds[h][i][1] !== P.bounds[h][i][0] ? "–" + fmt(P.bounds[h][i][1]) : ""}`).join(" · ") + " solutions").join("<br>");
+    `${h}×5 : `.replace(" :", T(":", " :")) + tn.map((t, i) => `${t} ${pct(P.bounds[h][i][0])}–${pct(P.bounds[h][i][1])}`).join(" · ")).join("<br>") +
+    `<br>${T("Chance that a random placement of the big pieces works.", "Probabilité qu’un placement au hasard des grandes pièces fonctionne.")}`;
 }
 const rnd = a => a[Math.floor(Math.random() * a.length)];
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -384,8 +384,8 @@ function renderDeal() {
   const tn = TIER();
   if (D.fail) {
     out.innerHTML = `<p class="warn">${T(
-      `No pair of ${tn[D.d1]} and ${tn[D.d2]} sets can be played together with these pieces${D.need ? ` and leave ${2*D.need} pentominoes to add` : ""}. Try fewer pentominoes each, another rectangle, or the printed extras.`,
-      `Aucune paire de combinaisons ${tn[D.d1]} et ${tn[D.d2]} n’est jouable ensemble avec ces pièces${D.need ? ` en laissant ${2*D.need} pentaminos à ajouter` : ""}. Essayez moins de pentaminos chacun, un autre rectangle ou les pièces imprimées.`)}</p>`;
+      `No pair of ${tn[D.d1]} and ${tn[D.d2]} sets can be played together with these pieces and still leave enough pentominoes for every round. Try another rectangle or the printed extras.`,
+      `Aucune paire de combinaisons ${tn[D.d1]} et ${tn[D.d2]} n’est jouable ensemble avec ces pièces en laissant assez de pentaminos pour toutes les manches. Essayez un autre rectangle ou les pièces imprimées.`)}</p>`;
     return;
   }
   if (D.solo) {
@@ -394,10 +394,12 @@ function renderDeal() {
                          `Ajoutez-les un par un, dans n’importe quel ordre : chaque étape reste soluble. ${fmt(D.n)} combinaisons correspondent à cette difficulté.`));
     return;
   }
-  const each = Math.floor(D.rest.length / 2), n = D.rest.length;
+  const n = D.rest.length, ra = rounds(D.a.h), rb = rounds(D.b.h);
+  const adds = ra === rb ? T(`each player adds ${ra}`, `chaque joueur en ajoute ${ra}`)
+                         : T(`player 1 adds ${ra}, player 2 adds ${rb}`, `le joueur 1 en ajoute ${ra}, le joueur 2 ${rb}`);
   out.innerHTML = `<div class="deal">${handHTML(D.a, T("Player 1", "Joueur 1"))}${handHTML(D.b, T("Player 2", "Joueur 2"))}</div>` +
-    poolHTML(D.rest, T(`Shared pool: ${n} pentomino${n === 1 ? "" : "es"}, enough for ${each} each. Any pick from it keeps both rectangles solvable.`,
-                       `Réserve commune : ${n} pentamino${n === 1 ? "" : "s"}, de quoi en ajouter ${each} chacun. Tout choix dans cette réserve garde les deux rectangles solubles.`));
+    poolHTML(D.rest, T(`Shared pool: ${n} pentominoes. ${adds[0].toUpperCase() + adds.slice(1)}, one per round, until both rectangles are ${BANDS.finalRows} rows; then one separator in the middle row is enough. Any pick from the pool keeps both rectangles solvable.`,
+                       `Réserve commune : ${n} pentaminos. ${adds[0].toUpperCase() + adds.slice(1)}, un par manche, jusqu’à ce que les deux rectangles fassent ${BANDS.finalRows} rangées ; un seul séparateur dans la rangée du milieu suffit alors. Tout choix dans la réserve garde les deux rectangles solubles.`));
 }
 document.getElementById("pGo").addEventListener("click", () => {
   const P = POOLS[getPool()], r = getRect();
@@ -407,16 +409,16 @@ document.getElementById("pGo").addEventListener("click", () => {
     const c = P.sets.filter(s => ok(s, d1)), a = rnd(c);
     lastDeal = {solo: true, a, n: c.length, rest: P.pent.filter(p => !a.k.includes(p))};
   } else {
-    const d2 = +getD2(), need = +getAdd();
+    const d2 = +getD2();
     const A = shuffle(P.sets.filter(s => ok(s, d1))), B = P.sets.filter(s => ok(s, d2));
     let pair = null;
     for (const a of A) {
       const bs = B.filter(b => b.k !== a.k && fits(a.k, b.k, P.inv) &&
-        P.pent.filter(p => !a.k.includes(p) && !b.k.includes(p)).length >= 2 * need);
+        P.pent.filter(p => !a.k.includes(p) && !b.k.includes(p)).length >= rounds(a.h) + rounds(b.h));
       if (bs.length) { pair = [a, rnd(bs)]; break; }
     }
     lastDeal = pair ? {a: pair[0], b: pair[1], rest: P.pent.filter(p => !pair[0].k.includes(p) && !pair[1].k.includes(p))}
-                    : {fail: true, d1, d2, need};
+                    : {fail: true, d1, d2};
   }
   renderDeal();
 });
